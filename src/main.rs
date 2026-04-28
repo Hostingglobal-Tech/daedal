@@ -1,31 +1,64 @@
-//! daedal — OpenAI gpt-image-2 이미지 생성 CLI (단일 Rust 바이너리).
+//! daedal — OpenAI gpt-image-2 (codename "ducktape") 이미지 생성 CLI (단일 Rust 바이너리).
 //! POST /v1/images/generations → base64 PNG → file.
 use anyhow::{Context, Result, bail};
 use base64::{Engine, engine::general_purpose::STANDARD};
-use clap::Parser;
+use clap::{Parser, ValueEnum};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
-const MODEL: &str = "gpt-image-2";
 const ENDPOINT: &str = "https://api.openai.com/v1/images/generations";
 
+#[derive(Copy, Clone, Debug, ValueEnum)]
+enum Preset {
+    /// 1024x1024 auto quality (default)
+    Square,
+    /// 1536x1024 high quality — PPT 16:9 슬라이드용 (텍스트·차트 강화)
+    Slide,
+    /// 1024x1536 high quality — 세로 포스터/안내문
+    Poster,
+    /// 1536x1024 high quality — 인포그래픽 (정보·라벨 밀도)
+    Infographic,
+}
+
+impl Preset {
+    fn size(self) -> &'static str {
+        match self {
+            Preset::Square => "1024x1024",
+            Preset::Slide | Preset::Infographic => "1536x1024",
+            Preset::Poster => "1024x1536",
+        }
+    }
+    fn quality(self) -> &'static str {
+        match self {
+            Preset::Square => "auto",
+            _ => "high",
+        }
+    }
+}
+
 #[derive(Parser, Debug)]
-#[command(version, about = "daedal — OpenAI gpt-image-2 이미지 생성 CLI")]
+#[command(version, about = "daedal — OpenAI gpt-image-2 (ducktape) 이미지 생성 CLI")]
 struct Args {
     /// Prompt text
     prompt: String,
-    /// Output path (default: ./daedal-<epoch>.png)
+    /// Output path (default: <auto-dir>/daedal-<epoch>.png)
     #[arg(long, short = 'o')]
     out: Option<PathBuf>,
-    /// Size: 1024x1024 | 1024x1536 | 1536x1024 | auto
-    #[arg(long, default_value = "1024x1024")]
-    size: String,
-    /// Quality: low | medium | high | auto
-    #[arg(long, default_value = "auto")]
-    quality: String,
+    /// Preset: 슬라이드/포스터/인포그래픽 자동 사이즈+품질. --size/--quality 로 override 가능
+    #[arg(long, value_enum)]
+    preset: Option<Preset>,
+    /// Size: 1024x1024 | 1024x1536 | 1536x1024 | auto (preset override)
+    #[arg(long)]
+    size: Option<String>,
+    /// Quality: low | medium | high | auto (preset override)
+    #[arg(long)]
+    quality: Option<String>,
     /// Number of images
     #[arg(long, short = 'n', default_value = "1")]
     n: u32,
+    /// Model ID (snapshot pin 가능, 예: gpt-image-2-2026-04-21)
+    #[arg(long, env = "DAEDAL_MODEL", default_value = "gpt-image-2")]
+    model: String,
     /// Print only path (scripts)
     #[arg(long)]
     quiet: bool,
@@ -85,11 +118,16 @@ async fn main() -> Result<()> {
     let key = api_key()?;
     if args.n == 0 || args.n > 10 { bail!("n must be 1..=10"); }
 
+    let preset_size = args.preset.map(|p| p.size().to_string());
+    let preset_quality = args.preset.map(|p| p.quality().to_string());
+    let size = args.size.clone().or(preset_size).unwrap_or_else(|| "1024x1024".to_string());
+    let quality = args.quality.clone().or(preset_quality).unwrap_or_else(|| "auto".to_string());
+
     let req = Req {
-        model: MODEL,
+        model: &args.model,
         prompt: &args.prompt,
-        size: &args.size,
-        quality: &args.quality,
+        size: &size,
+        quality: &quality,
         n: args.n,
         output_format: "png",
     };
@@ -99,7 +137,7 @@ async fn main() -> Result<()> {
         .build()?;
 
     if !args.quiet {
-        eprintln!("[daedal] model={} size={} quality={} n={}", MODEL, args.size, args.quality, args.n);
+        eprintln!("[daedal] model={} size={} quality={} n={}", args.model, size, quality, args.n);
     }
 
     let r = client.post(ENDPOINT)

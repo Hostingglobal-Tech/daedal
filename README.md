@@ -1,7 +1,7 @@
 # daedal
 
-OpenAI **`gpt-image-2`** 로 이미지를 만드는 작은 Rust CLI.
-단일 정적 바이너리. Python·Node.js 불필요.
+OpenAI **`gpt-image-2`** (codename: **ducktape**, 출시 2026-04-21) 로 이미지를 만드는 작은 Rust CLI.
+단일 정적 바이너리. Python·Node.js 불필요. 한글 텍스트 99% 정확도, PPT 슬라이드 프리셋 내장.
 
 [![Rust](https://img.shields.io/badge/Rust-stable-orange)](https://rust-lang.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
@@ -62,11 +62,30 @@ daedal "스크립트용" --quiet -o out.png   # stdout 에 파일 경로만 출�
 
 | Flag | 값 | 기본 |
 |---|---|---|
-| `--size` | `1024x1024` · `1024x1536` · `1536x1024` · `auto` | `1024x1024` |
-| `--quality` | `low` · `medium` · `high` · `auto` | `auto` |
+| `--preset` | `square` · `slide` · `poster` · `infographic` | (없음) |
+| `--size` | `1024x1024` · `1024x1536` · `1536x1024` · `auto` | preset 또는 `1024x1024` |
+| `--quality` | `low` · `medium` · `high` · `auto` | preset 또는 `auto` |
+| `--model` | model ID (snapshot pin: `gpt-image-2-2026-04-21`) | `gpt-image-2` (env `DAEDAL_MODEL`) |
 | `-n` | 1..=10 장 | `1` |
 | `-o, --out` | 저장 경로 | 아래 표 참조 |
 | `--quiet` | — | off |
+
+### Preset (v0.2.0+)
+
+자주 쓰는 사이즈+품질 조합. `--size` / `--quality` 로 override 가능.
+
+| Preset | size | quality | 용도 |
+|---|---|---|---|
+| `square` | 1024x1024 | auto | 일반 (default 동등) |
+| `slide` | 1536x1024 | high | PPT 16:9 슬라이드, 텍스트·차트 |
+| `poster` | 1024x1536 | high | 세로 포스터·안내문 |
+| `infographic` | 1536x1024 | high | 인포그래픽, 정보 밀도 |
+
+```bash
+daedal --preset slide "16:9 슬라이드. 제목 '2026 Q2 영업 실적' 큰 한글 헤딩, 매출 +28%"
+daedal --preset poster "당뇨 관리 안내, 한글 캘리그라피"
+daedal --preset infographic "8 노드 클러스터 구조. 각 노드 역할 라벨"
+```
 
 ### 기본 저장 경로
 
@@ -158,8 +177,17 @@ daedal "a red cube on white"
 
 ## 모델
 
-**`gpt-image-2`** 가 코드에 고정돼 있습니다. CLI 플래그로 바꿀 수 없습니다.
-다른 모델을 쓰려면 fork 후 `src/main.rs` 의 `MODEL` 상수를 수정하세요.
+기본 **`gpt-image-2`** (ducktape). `--model` CLI 플래그 또는 `DAEDAL_MODEL` 환경변수로 변경 가능:
+
+```bash
+# Snapshot pin (재현성 — 모델 업데이트 후에도 동일 결과 보장)
+DAEDAL_MODEL=gpt-image-2-2026-04-21 daedal "..."
+
+# 또는 CLI 플래그
+daedal --model gpt-image-2-2026-04-21 "..."
+```
+
+다른 image 모델 (이전 `gpt-image-1` 등) 도 endpoint 가 같으면 그대로 동작합니다.
 
 ## 비용
 
