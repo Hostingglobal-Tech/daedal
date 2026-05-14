@@ -1,7 +1,7 @@
 # daedal
 
-OpenAI **`gpt-image-2`** (codename: **ducktape**, 출시 2026-04-21) 로 이미지를 만드는 작은 Rust CLI.
-단일 정적 바이너리. Python·Node.js 불필요. 한글 텍스트 99% 정확도, PPT 슬라이드 프리셋 내장.
+OpenAI **`gpt-image-2`** 로 이미지를 만드는 작은 Rust CLI.
+단일 정적 바이너리. Python·Node.js 불필요. 슬라이드·포스터·인포그래픽 프리셋 내장.
 
 [![Rust](https://img.shields.io/badge/Rust-stable-orange)](https://rust-lang.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
@@ -54,6 +54,7 @@ curl -fsSL https://raw.githubusercontent.com/Hostingglobal-Tech/daedal/main/inst
 daedal "흰 배경에 빨간 큐브"
 daedal "유화풍으로 달 위에 앉은 파란 고양이" --quality high
 daedal "벚꽃 핀 한옥 마당" --size 1024x1536 -o hanok.png
+daedal --preset slide "16:9 슬라이드. 제목 '2026 Q2 실적', 하단 3개 메트릭 카드"
 daedal "로고 시안 3가지" -n 3
 daedal "스크립트용" --quiet -o out.png   # stdout 에 파일 경로만 출력
 ```
@@ -65,14 +66,17 @@ daedal "스크립트용" --quiet -o out.png   # stdout 에 파일 경로만 출�
 | `--preset` | `square` · `slide` · `poster` · `infographic` | (없음) |
 | `--size` | `1024x1024` · `1024x1536` · `1536x1024` · `auto` | preset 또는 `1024x1024` |
 | `--quality` | `low` · `medium` · `high` · `auto` | preset 또는 `auto` |
-| `--model` | model ID (snapshot pin: `gpt-image-2-2026-04-21`) | `gpt-image-2` (env `DAEDAL_MODEL`) |
+| `--model` | 모델 ID (`DAEDAL_MODEL` 로도 지정 가능) | `gpt-image-2` |
+| `--raw` | 프롬프트 품질 보강 비활성화 | off |
 | `-n` | 1..=10 장 | `1` |
 | `-o, --out` | 저장 경로 | 아래 표 참조 |
 | `--quiet` | — | off |
 
 ### Preset (v0.2.0+)
 
-자주 쓰는 사이즈+품질 조합. `--size` / `--quality` 로 override 가능.
+자주 쓰는 사이즈+품질 조합입니다. `--size` / `--quality` 로 override 할 수 있습니다.
+프리셋을 쓰면 레이아웃·타이포그래피·텍스트 정확도 요구사항도 프롬프트에 자동으로 덧붙입니다.
+원문 프롬프트를 그대로 보내고 싶으면 `--raw` 를 쓰세요.
 
 | Preset | size | quality | 용도 |
 |---|---|---|---|
@@ -177,17 +181,14 @@ daedal "a red cube on white"
 
 ## 모델
 
-기본 **`gpt-image-2`** (ducktape). `--model` CLI 플래그 또는 `DAEDAL_MODEL` 환경변수로 변경 가능:
+기본 모델은 **`gpt-image-2`** 입니다. 재현성이 필요하면 snapshot 모델을 지정할 수 있습니다.
 
 ```bash
-# Snapshot pin (재현성 — 모델 업데이트 후에도 동일 결과 보장)
 DAEDAL_MODEL=gpt-image-2-2026-04-21 daedal "..."
-
-# 또는 CLI 플래그
 daedal --model gpt-image-2-2026-04-21 "..."
 ```
 
-다른 image 모델 (이전 `gpt-image-1` 등) 도 endpoint 가 같으면 그대로 동작합니다.
+같은 `/v1/images/generations` 요청 형식을 지원하는 이미지 모델이면 `--model` 로 지정해 시험할 수 있습니다.
 
 ## 비용
 
