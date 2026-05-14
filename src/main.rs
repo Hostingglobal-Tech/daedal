@@ -1,4 +1,4 @@
-//! daedal — OpenAI gpt-image-2 이미지 생성 CLI (단일 Rust 바이너리).
+//! daedal — OpenAI gpt-image-2 (codename "ducktape") 이미지 생성 CLI (단일 Rust 바이너리).
 //! POST /v1/images/generations → base64 PNG → file.
 use anyhow::{bail, Context, Result};
 use base64::{engine::general_purpose::STANDARD, Engine};
@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
 const ENDPOINT: &str = "https://api.openai.com/v1/images/generations";
+const MODEL: &str = "gpt-image-2";
 
 #[derive(Copy, Clone, Debug, ValueEnum)]
 enum Preset {
@@ -37,7 +38,10 @@ impl Preset {
 }
 
 #[derive(Parser, Debug)]
-#[command(version, about = "daedal — OpenAI gpt-image-2 이미지 생성 CLI")]
+#[command(
+    version,
+    about = "daedal — OpenAI gpt-image-2 (ducktape) 이미지 생성 CLI"
+)]
 struct Args {
     /// Prompt text
     prompt: String,
@@ -56,9 +60,6 @@ struct Args {
     /// Number of images
     #[arg(long, short = 'n', default_value = "1")]
     n: u32,
-    /// Model ID (snapshot pin 가능, 예: gpt-image-2-2026-04-21)
-    #[arg(long, env = "DAEDAL_MODEL", default_value = "gpt-image-2")]
-    model: String,
     /// Do not add daedal's quality/preset prompt wrapper
     #[arg(long)]
     raw: bool,
@@ -185,7 +186,7 @@ async fn main() -> Result<()> {
     let prompt = build_prompt(&args.prompt, args.preset, args.raw);
 
     let req = Req {
-        model: &args.model,
+        model: MODEL,
         prompt: &prompt,
         size: &size,
         quality: &quality,
@@ -200,7 +201,7 @@ async fn main() -> Result<()> {
     if !args.quiet {
         eprintln!(
             "[daedal] model={} size={} quality={} n={}",
-            args.model, size, quality, args.n
+            MODEL, size, quality, args.n
         );
     }
 

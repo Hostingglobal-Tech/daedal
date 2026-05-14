@@ -1,6 +1,6 @@
 # daedal
 
-OpenAI **`gpt-image-2`** 로 이미지를 만드는 작은 Rust CLI.
+OpenAI **`gpt-image-2`** (codename: **ducktape**) 로 이미지를 만드는 작은 Rust CLI.
 단일 정적 바이너리. Python·Node.js 불필요. 슬라이드·포스터·인포그래픽 프리셋 내장.
 
 [![Rust](https://img.shields.io/badge/Rust-stable-orange)](https://rust-lang.org)
@@ -66,7 +66,6 @@ daedal "스크립트용" --quiet -o out.png   # stdout 에 파일 경로만 출�
 | `--preset` | `square` · `slide` · `poster` · `infographic` | (없음) |
 | `--size` | `1024x1024` · `1024x1536` · `1536x1024` · `auto` | preset 또는 `1024x1024` |
 | `--quality` | `low` · `medium` · `high` · `auto` | preset 또는 `auto` |
-| `--model` | 모델 ID (`DAEDAL_MODEL` 로도 지정 가능) | `gpt-image-2` |
 | `--raw` | 프롬프트 품질 보강 비활성화 | off |
 | `-n` | 1..=10 장 | `1` |
 | `-o, --out` | 저장 경로 | 아래 표 참조 |
@@ -116,7 +115,7 @@ daedal --preset infographic "8 노드 클러스터 구조. 각 노드 역할 라
 
 ### 한글 텍스트 렌더링
 
-`gpt-image-2` 부터 **한글 간판·타이포그래피**가 제대로 나옵니다. 이전 세대 (DALL-E 3 · gpt-image-1) 에서는 한글이 **깨진 자소**나 **유사 한자** 모양으로 나왔는데, 2세대부터 명조·고딕·붓글씨체·캘리그라피까지 자소 정확도가 크게 올라갔습니다.
+`gpt-image-2` 부터 **한글 간판·타이포그래피**가 제대로 나옵니다. 이전 세대에서는 한글이 **깨진 자소**나 **유사 한자** 모양으로 나왔는데, 2세대부터 명조·고딕·붓글씨체·캘리그라피까지 자소 정확도가 크게 올라갔습니다.
 
 쓸 만한 예:
 ```bash
@@ -181,14 +180,7 @@ daedal "a red cube on white"
 
 ## 모델
 
-기본 모델은 **`gpt-image-2`** 입니다. 재현성이 필요하면 snapshot 모델을 지정할 수 있습니다.
-
-```bash
-DAEDAL_MODEL=gpt-image-2-2026-04-21 daedal "..."
-daedal --model gpt-image-2-2026-04-21 "..."
-```
-
-같은 `/v1/images/generations` 요청 형식을 지원하는 이미지 모델이면 `--model` 로 지정해 시험할 수 있습니다.
+**`gpt-image-2`** 전용입니다. 모델 선택 CLI 옵션이나 환경변수 override 는 지원하지 않습니다.
 
 ## 비용
 
