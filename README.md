@@ -6,7 +6,7 @@ OpenAI **`gpt-image-2`** (codename: **ducktape**) 로 이미지를 만드는 작
 [![Rust](https://img.shields.io/badge/Rust-stable-orange)](https://rust-lang.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
 
-![한옥 벚꽃](examples/hanok-blossom.png)
+![daedal gpt-image-2 wallpaper](examples/daedal-gpt-image-2-wallpaper.png)
 
 ## 이름
 
@@ -105,9 +105,9 @@ daedal --preset infographic "8 노드 클러스터 구조. 각 노드 역할 라
 
 ### 예제
 
-프롬프트: *"a futuristic seoul skyline at sunset, photorealistic"* · `1024x1024` · `low` quality
+프롬프트: *"Create a striking premium desktop wallpaper for comparing AI image generators: a futuristic Seoul control room at dawn, glass walls overlooking a quiet city skyline, warm sunrise reflections, crisp realistic materials, subtle Korean design influence, no text, no logos, cinematic lighting, high detail, polished professional composition."* · `1536x1024` · `high` quality
 
-![서울 스카이라인](examples/seoul-skyline.png)
+![daedal gpt-image-2 wallpaper](examples/daedal-gpt-image-2-wallpaper.png)
 
 프롬프트: *"실사풍 한국 전통 한옥 마당에 벚꽃이 만발한 봄날 오후, 따뜻한 햇빛, 기와 지붕 디테일 정교, 고해상도 사진"* · `1024x1536` · `high` quality
 
