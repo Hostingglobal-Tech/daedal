@@ -1,15 +1,18 @@
 [package]
 name = "daedal"
-version = "0.2.1"
+version = "0.4.0"
 edition = "2021"
+description = "OpenAI 이미지 생성 CLI — gpt-image-2 (Images API 직접 / Responses image_generation 툴)"
+license = "MIT"
 
 [dependencies]
-clap = { version = "4", features = ["derive"] }
+clap = { version = "4.5", features = ["derive", "env"] }
+# reqwest 0.13 은 rustls 가 aws-lc-rs + rustls-platform-verifier 를 강제한다(ring/webpki-roots 조합 불가).
+# aarch64-android(termux)·musl 크로스빌드에서 cmake/JNI 의존이 생기므로 0.12 + rustls-tls(ring+webpki) 유지.
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
-tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
-serde = { version = "1", features = ["derive"] }
+tokio = { version = "1.44", features = ["rt-multi-thread", "macros", "time"] }
 serde_json = "1"
-base64 = "0.22"
+base64 = "0.23"
 anyhow = "1"
 
 [profile.release]
